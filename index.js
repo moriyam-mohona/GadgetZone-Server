@@ -36,16 +36,6 @@ async function run() {
 
     const gadgetCollection = client.db("GadgetZone").collection("gadget");
 
-    // app.get("/gadget", async (req, res) => {
-    //   const result = await gadgetCollection.find().toArray();
-    //   res.send(result);
-    // });
-
-    app.post("/gadget", async (req, res) => {
-      const result = await gadgetCollection.find().toArray();
-      res.send(result);
-    });
-
     app.get("/gadget", async (req, res) => {
       const search = req.query.search || "";
       const page = parseInt(req.query.page);
