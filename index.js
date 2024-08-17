@@ -32,9 +32,21 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const gadgetCollection = client.db("GadgetZone").collection("gadget");
+
+    // Add this to your backend code
+
+    app.post("/gadget", async (req, res) => {
+      try {
+        const newProduct = req.body;
+        const result = await gadgetCollection.insertOne(newProduct);
+        res.status(201).send(result);
+      } catch (error) {
+        res.status(500).send(error);
+      }
+    });
 
     app.get("/gadget", async (req, res) => {
       const search = req.query.search || "";
@@ -45,8 +57,6 @@ async function run() {
       const minPrice = parseFloat(req.query.minPrice) || 0;
       const maxPrice = parseFloat(req.query.maxPrice) || Infinity;
       const sortOrder = req.query.sortOrder || "";
-
-      console.log(search);
 
       let query = {};
       if (search) {
