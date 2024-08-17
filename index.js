@@ -27,9 +27,44 @@ async function run() {
 
     const gadgetCollection = client.db("GadgetZone").collection("gadget");
 
+    // app.get("/gadget", async (req, res) => {
+    //   const result = await gadgetCollection.find().toArray();
+    //   res.send(result);
+    // });
+
     app.get("/gadget", async (req, res) => {
-      const result = await gadgetCollection.find().toArray();
-      res.send(result);
+      const search = req.query.search || "";
+      const page = parseInt(req.query.page);
+      const size = parseInt(req.query.size);
+      const brand = req.query.brand || "";
+      const category = req.query.category || "";
+      const minPrice = parseFloat(req.query.minPrice) || 0;
+      const maxPrice = parseFloat(req.query.maxPrice) || Infinity;
+      console.log(search);
+      let query = {};
+      if (search) {
+        query = { productName: { $regex: search, $options: "i" } };
+      }
+      if (brand) {
+        query.brand = brand;
+      }
+
+      if (category) {
+        query.category = category;
+      }
+
+      if (minPrice !== 0 || maxPrice !== Infinity) {
+        query.price = { $gte: minPrice, $lte: maxPrice };
+      }
+
+      const totalItems = await gadgetCollection.countDocuments();
+      const result = await gadgetCollection
+        .find()
+        .skip(page * size)
+        .limit(size)
+        .toArray();
+
+      res.send({ totalItems, result });
     });
 
     // Send a ping to confirm a successful connection
