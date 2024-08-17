@@ -41,6 +41,11 @@ async function run() {
     //   res.send(result);
     // });
 
+    app.post("/gadget", async (req, res) => {
+      const result = await gadgetCollection.find().toArray();
+      res.send(result);
+    });
+
     app.get("/gadget", async (req, res) => {
       const search = req.query.search || "";
       const page = parseInt(req.query.page);
@@ -72,7 +77,7 @@ async function run() {
       } else if (sortOrder === "price_desc") {
         sort.price = -1;
       } else if (sortOrder === "date_desc") {
-        sort.dateAdded = -1; // Assuming you have a dateAdded field
+        sort.dateAdded = -1;
       }
       const totalItems = await gadgetCollection.countDocuments(query);
       const result = await gadgetCollection
