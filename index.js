@@ -1,13 +1,20 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const port = process.env.PORT || 5000;
 require("dotenv").config();
+const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion } = require("mongodb");
 
 //middleware
-app.use(cors());
 app.use(express.json());
+const corsOption = {
+  origin: [
+    " http://localhost:5173",
+    "http://localhost:5174",
+    "https://gadgetzone-f7d41.web.app",
+  ],
+};
+app.use(cors(corsOptions));
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.z3gfp8c.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -23,7 +30,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const gadgetCollection = client.db("GadgetZone").collection("gadget");
 
@@ -57,14 +64,6 @@ async function run() {
         query.price = { $gte: minPrice, $lte: maxPrice };
       }
 
-      // if (category) {
-      //   query.category = category;
-      // }
-
-      // if (minPrice !== 0 || maxPrice !== Infinity) {
-      //   query.price = { $gte: minPrice, $lte: maxPrice };
-      // }
-
       const totalItems = await gadgetCollection.countDocuments(query);
       const result = await gadgetCollection
         .find(query)
@@ -76,10 +75,10 @@ async function run() {
     });
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
