@@ -7,12 +7,14 @@ const { MongoClient, ServerApiVersion } = require("mongodb");
 
 //middleware
 app.use(express.json());
-const corsOption = {
+const corsOptions = {
   origin: [
-    " http://localhost:5173",
+    "http://localhost:5173",
     "http://localhost:5174",
-    "https://gadgetzone-f7d41.web.app",
+    // "https://gadgetzone-f7d41.web.app",
   ],
+  credentials: true,
+  optionSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
 
@@ -47,6 +49,7 @@ async function run() {
       const category = req.query.category || "";
       const minPrice = parseFloat(req.query.minPrice) || 0;
       const maxPrice = parseFloat(req.query.maxPrice) || Infinity;
+      const sortOrder = req.query.sortOrder || "";
 
       console.log(search);
 
@@ -63,10 +66,18 @@ async function run() {
       if (minPrice || maxPrice < Infinity) {
         query.price = { $gte: minPrice, $lte: maxPrice };
       }
-
+      let sort = {};
+      if (sortOrder === "price_asc") {
+        sort.price = 1;
+      } else if (sortOrder === "price_desc") {
+        sort.price = -1;
+      } else if (sortOrder === "date_desc") {
+        sort.dateAdded = -1; // Assuming you have a dateAdded field
+      }
       const totalItems = await gadgetCollection.countDocuments(query);
       const result = await gadgetCollection
         .find(query)
+        .sort(sort)
         .skip(page * size)
         .limit(size)
         .toArray();
