@@ -40,26 +40,34 @@ async function run() {
       const category = req.query.category || "";
       const minPrice = parseFloat(req.query.minPrice) || 0;
       const maxPrice = parseFloat(req.query.maxPrice) || Infinity;
+
       console.log(search);
+
       let query = {};
       if (search) {
-        query = { productName: { $regex: search, $options: "i" } };
+        query.productName = { $regex: search, $options: "i" };
       }
       if (brand) {
         query.brand = brand;
       }
-
       if (category) {
         query.category = category;
       }
-
-      if (minPrice !== 0 || maxPrice !== Infinity) {
+      if (minPrice || maxPrice < Infinity) {
         query.price = { $gte: minPrice, $lte: maxPrice };
       }
 
-      const totalItems = await gadgetCollection.countDocuments();
+      // if (category) {
+      //   query.category = category;
+      // }
+
+      // if (minPrice !== 0 || maxPrice !== Infinity) {
+      //   query.price = { $gte: minPrice, $lte: maxPrice };
+      // }
+
+      const totalItems = await gadgetCollection.countDocuments(query);
       const result = await gadgetCollection
-        .find()
+        .find(query)
         .skip(page * size)
         .limit(size)
         .toArray();
