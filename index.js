@@ -3,7 +3,7 @@ const app = express();
 const cors = require("cors");
 require("dotenv").config();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 //middleware
 app.use(express.json());
@@ -36,8 +36,6 @@ async function run() {
 
     const gadgetCollection = client.db("GadgetZone").collection("gadget");
     const cartCollection = client.db("GadgetZone").collection("cart");
-
-    // Add this to your backend code
 
     app.post("/gadget", async (req, res) => {
       const newProduct = req.body;
@@ -93,11 +91,16 @@ async function run() {
       const result = await cartCollection.insertOne(cartItem);
       res.send(result);
     });
-
     app.get("/cart", async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
       const result = await cartCollection.find(query).toArray();
+      res.send(result);
+    });
+    app.delete("/cart/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await cartCollection.deleteOne(query);
       res.send(result);
     });
     // Send a ping to confirm a successful connection
