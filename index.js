@@ -35,17 +35,14 @@ async function run() {
     // await client.connect();
 
     const gadgetCollection = client.db("GadgetZone").collection("gadget");
+    const cartCollection = client.db("GadgetZone").collection("cart");
 
     // Add this to your backend code
 
     app.post("/gadget", async (req, res) => {
-      try {
-        const newProduct = req.body;
-        const result = await gadgetCollection.insertOne(newProduct);
-        res.status(201).send(result);
-      } catch (error) {
-        res.status(500).send(error);
-      }
+      const newProduct = req.body;
+      const result = await gadgetCollection.insertOne(newProduct);
+      res.send(result);
     });
 
     app.get("/gadget", async (req, res) => {
@@ -90,6 +87,19 @@ async function run() {
       res.send({ totalItems, result });
     });
 
+    // Cart API's
+    app.post("/cart", async (req, res) => {
+      const cartItem = req.body;
+      const result = await cartCollection.insertOne(cartItem);
+      res.send(result);
+    });
+
+    app.get("/cart", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await cartCollection.find(query).toArray();
+      res.send(result);
+    });
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
     // console.log(
